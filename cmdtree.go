@@ -5,11 +5,6 @@ import (
 	"strings"
 )
 
-type N interface {
-	next(*Context, string) (N, error)
-	run(*Context) error
-}
-
 func Exec(n N, s string) error {
 	var err error
 	c := &Context{}

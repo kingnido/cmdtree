@@ -1,5 +1,10 @@
 package cmdtree
 
+type N interface {
+	next(*Context, string) (N, error)
+	run(*Context) error
+}
+
 type M map[string]N
 
 type P struct {
@@ -9,6 +14,11 @@ type P struct {
 
 type L struct {
 	Func func(*Context) error
+}
+
+type R struct {
+	Func func(*Context) error
+	Next N
 }
 
 type Context struct {
