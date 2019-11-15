@@ -5,10 +5,6 @@ import (
 	"strings"
 )
 
-type Context struct {
-	Params []string
-}
-
 type N interface {
 	next(*Context, string) (N, error)
 	run(*Context) error

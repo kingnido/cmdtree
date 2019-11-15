@@ -20,10 +20,10 @@ func main() {
 		"give": P{
 			"item", M{
 				"to": P{
-					"player", T{dumpContext, nil}}}},
+					"player", L{dumpContext}}}},
 		"turn": M{
-			"left":  T{dumpContext, nil},
-			"right": T{dumpContext, nil}},
+			"left":  L{dumpContext},
+			"right": L{dumpContext}},
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)

@@ -5,8 +5,6 @@ import (
 	"fmt"
 )
 
-type M map[string]N
-
 func (m M) next(c *Context, s string) (N, error) {
 	n, ok := m[s]
 	if !ok {
