@@ -2,7 +2,6 @@ package cmdtree
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -15,53 +14,7 @@ type N interface {
 	run(*Context) error
 }
 
-type M map[string]N
-
-type P struct {
-	Name string
-	Next N
-}
-
-type T struct {
-	Func func(*Context) error
-	Next N
-}
-
-func (m M) next(c *Context, s string) (N, error) {
-	n, ok := m[s]
-	if !ok {
-		return nil, errors.New(fmt.Sprintf("%s not found", s))
-	}
-
-	return n, nil
-}
-
-func (m M) run(c *Context) error {
-	return errors.New("no runner for this type")
-}
-
-func (p P) next(c *Context, s string) (N, error) {
-	c.Params = append(c.Params, fmt.Sprintf("%s: %s", p.Name, s))
-	return p.Next, nil
-}
-
-func (p P) run(c *Context) error {
-	return errors.New("no runner for this type")
-}
-
-func (t T) next(c *Context, s string) (N, error) {
-	if t.Next != nil {
-		return t.Next.next(c, s)
-	}
-
-	return nil, errors.New("too many arguments")
-}
-
-func (t T) run(c *Context) error {
-	return t.Func(c)
-}
-
-func Exec(n N, s string) {
+func Exec(n N, s string) error {
 	var err error
 	c := &Context{}
 
@@ -71,16 +24,14 @@ func Exec(n N, s string) {
 		}
 
 		if n == nil {
-			fmt.Println("too many args")
-			return
+			return errors.New("too many args")
 		}
 
 		n, err = n.next(c, s)
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
 	}
 
-	fmt.Println(n.run(c))
+	return n.run(c)
 }

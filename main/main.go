@@ -30,5 +30,4 @@ func main() {
 	for fmt.Print("> "); scanner.Scan(); fmt.Print("> ") {
 		Exec(cmdtree, scanner.Text())
 	}
-
 }
