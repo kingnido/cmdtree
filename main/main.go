@@ -2,14 +2,14 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
-	"strings"
+
+	. "github.com/kingnido/cmdtree"
 )
 
 func dumpContext(c *Context) error {
-	fmt.Println(c.ss)
+	fmt.Println(c.Params)
 	return nil
 }
 
@@ -17,7 +17,10 @@ func main() {
 	var cmdtree N
 
 	cmdtree = M{
-		"give": P{"item", M{"to": P{"player", T{dumpContext, nil}}}},
+		"give": P{
+			"item", M{
+				"to": P{
+					"player", T{dumpContext, nil}}}},
 		"turn": M{
 			"left":  T{dumpContext, nil},
 			"right": T{dumpContext, nil}},

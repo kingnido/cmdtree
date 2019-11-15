@@ -7,7 +7,7 @@ import (
 )
 
 type Context struct {
-	ss []string
+	Params []string
 }
 
 type N interface {
@@ -41,7 +41,7 @@ func (m M) run(c *Context) error {
 }
 
 func (p P) next(c *Context, s string) (N, error) {
-	c.ss = append(c.ss, fmt.Sprintf("%s: %s", p.Name, s))
+	c.Params = append(c.Params, fmt.Sprintf("%s: %s", p.Name, s))
 	return p.Next, nil
 }
 
