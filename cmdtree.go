@@ -1,36 +1,33 @@
 package cmdtree
 
 import (
-	"fmt"
-	"io"
+	"errors"
 	"strings"
 )
 
 type Handler interface {
-	Handle(*Context, io.Writer, ...string)
+	Handle(*Context, ...string) error
 }
 
-type HandlerFunc func(*Context, io.Writer, ...string)
+type HandlerFunc func(*Context, ...string) error
 
-func (f HandlerFunc) Handle(c *Context, w io.Writer, args ...string) {
-	f(c, w, args...)
+func (f HandlerFunc) Handle(c *Context, args ...string) error {
+	return f(c, args...)
 }
 
 type M map[string]Handler
 
-func (m M) Handle(c *Context, w io.Writer, args ...string) {
+func (m M) Handle(c *Context, args ...string) error {
 	if len(args) == 0 {
-		fmt.Fprintf(w, "missing arguments\n")
-		return
+		return errors.New("missing arguments")
 	}
 
 	next, ok := m[args[0]]
 	if !ok {
-		fmt.Fprintf(w, "invalid arguments\n")
-		return
+		return errors.New("invalid arguments")
 	}
 
-	next.Handle(c, w, args[1:]...)
+	return next.Handle(c, args[1:]...)
 }
 
 type P struct {
@@ -38,15 +35,14 @@ type P struct {
 	Next Handler
 }
 
-func (p P) Handle(c *Context, w io.Writer, args ...string) {
+func (p P) Handle(c *Context, args ...string) error {
 	if len(args) == 0 {
-		fmt.Fprintf(w, "missing arguments\n")
-		return
+		return errors.New("missing arguments")
 	}
 
 	c.KeyValues = append(c.KeyValues, KeyValue{p.Key, args[0]})
 
-	p.Next.Handle(c, w, args[1:]...)
+	return p.Next.Handle(c, args[1:]...)
 }
 
 type T struct {
@@ -54,13 +50,12 @@ type T struct {
 	Next Handler
 }
 
-func (t T) Handle(c *Context, w io.Writer, args ...string) {
+func (t T) Handle(c *Context, args ...string) error {
 	if len(args) == 0 {
-		t.This.Handle(c, w, args...)
-		return
+		return t.This.Handle(c, args...)
 	}
 
-	t.Next.Handle(c, w, args...)
+	return t.Next.Handle(c, args...)
 }
 
 type KeyValue struct {
@@ -74,7 +69,7 @@ type Context struct {
 	KeyValues []KeyValue
 }
 
-func Exec(h Handler, w io.Writer, s string) {
+func Exec(h Handler, s string) error {
 	var ss []string
 	for _, s := range strings.Split(s, " ") {
 		if s != "" {
@@ -88,5 +83,5 @@ func Exec(h Handler, w io.Writer, s string) {
 		KeyValues: []KeyValue{},
 	}
 
-	h.Handle(c, w, ss...)
+	return h.Handle(c, ss...)
 }

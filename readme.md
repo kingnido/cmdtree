@@ -7,21 +7,24 @@ on net/http's handlers approach.
 
 ```go
 func moveHandler(direction string) Handler {
-    return cmdtree.HandlerFunc(func(c *cmdtree.Context, w io.Writer, args ...string) {
-        fmt.Fprintf(w, "going %s\n", direction)
+    return cmdtree.HandlerFunc(func(c *cmdtree.Context, args ...string) error {
+        fmt.Fprintf(os.Stdout, "going %s\n", direction)
+        return nil
     })
 }
 
 func setNameHandler(name *string) Handler {
-    return cmdtree.HandlerFunc(func(c *cmdtree.Context, w io.Writer, args ...string) {
+    return cmdtree.HandlerFunc(func(c *cmdtree.Context, args ...string) error {
         // c.KeyValues[0].Key == "newname"
         *name = c.KeyValues[0].Value
+        return nil
     })
 }
 
 func getNameHandler(name *string) Handler {
-    return cmdtree.HandlerFunc(func(c *cmdtree.Context, w io.Writer, args ...string) {
-        fmt.Fprintf(w, "name: %s\n", *name)
+    return cmdtree.HandlerFunc(func(c *cmdtree.Context, args ...string) error {
+        fmt.Fprintf(os.Stdout, "name: %s\n", *name)
+        return nil
     })
 }
 ...
@@ -41,7 +44,9 @@ tree := cmdtree.M{
 
 scanner := bufio.NewScanner(os.Stdin)
 for fmt.Print("> "); scanner.Scan(); fmt.Print("> ") {
-    cmdtree.Exec(tree, os.Stdout, scanner.Text())
+    if err := cmdtree.Exec(tree, scanner.Text()); err != nil {
+        fmt.Fprintf(os.Stdout, "error: %v\n", err)
+    }
 }
 fmt.Printf("\n")
 
